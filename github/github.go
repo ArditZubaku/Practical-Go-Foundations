@@ -53,6 +53,8 @@ func gitHubInfo(login string) (string, int, error) {
 		return "", 0, err
 	}
 
+	defer resp.Body.Close()
+
 	// fmt.Println(r)
 	// This is the best
 	fmt.Printf("%#v", r)
