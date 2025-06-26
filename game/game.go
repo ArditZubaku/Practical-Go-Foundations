@@ -1,6 +1,12 @@
 package main
 
-import "fmt"
+import (
+	"encoding/json"
+	"fmt"
+	"os"
+	"slices"
+	"time"
+)
 
 func main() {
 	var i1 Item
@@ -58,7 +64,56 @@ func main() {
 	for _, m := range ms {
 		fmt.Println(m)
 	}
+
+	k := Jade
+	fmt.Println("k: ", k)
+
+	// time.Time implements json.Marshaler
+	json.NewEncoder(os.Stdout).Encode(time.Now())
+
+	fmt.Println("another key: ", Key(17))
+
+	p1.FoundKey(Jade)
+	fmt.Println(string(p1.Keys))
+	p1.FoundKey(Jade)
+	fmt.Println(string(p1.Keys))
+
+	fmt.Println(p1.Found("copper"))
+	fmt.Println(p1.Found("copper"))
+	fmt.Println(p1.Found("gold"))
+	fmt.Println("keys: ", p1.Keys2)
 }
+
+// #EXERCISE:
+// - Add a "Keys" field to Player which is a slice of Key
+// Add a "FoundKey(k Key) error" method to Player which will add k to Key if it's not there
+// 		- Err if k is not one of the known keys
+
+// INFO: This is the method you have to implement on a type to implement how its string representation should be
+// Basically Java's `toString()`
+// fmt.Stringer interface
+func (k Key) String() string {
+	switch k {
+	case Jade:
+		return "Jade"
+	case Copper:
+		return "Copper"
+	case Crystal:
+		return "Crystal"
+	}
+
+	return fmt.Sprintf("<Key %d>", k)
+}
+
+// Go's version of "enum"
+const (
+	Jade Key = iota + 1
+	Copper
+	Crystal
+	invalidKey // internal, not exported
+)
+
+type Key byte
 
 /*
 	go >= 1.18
@@ -82,12 +137,38 @@ func moveAll(ms []mover, x, y int) {
 	}
 }
 
+func (p *Player) FoundKey(k Key) error {
+	if k < Jade || k >= invalidKey {
+		return fmt.Errorf("invalid Key: %#v", k)
+	}
+
+	if !slices.Contains(p.Keys, k) {
+		p.Keys = append(p.Keys, k)
+	}
+
+	return nil
+}
+
 // #EMBEDDING
 type Player struct {
 	Name string
 	Item // Embeds Item
 	// T
 	A
+	Keys  []Key
+	Keys2 []string
+}
+
+func (p *Player) Found(key string) error {
+	switch key {
+	case "jade", "copper", "crystal":
+		if !slices.Contains(p.Keys2, key) {
+			p.Keys2 = append(p.Keys2, key)
+		}
+		return nil
+	default:
+		return fmt.Errorf("unknown key - %q", key)
+	}
 }
 
 // All the fields get lifted
