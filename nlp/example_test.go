@@ -15,7 +15,7 @@ func ExampleTokenize() {
 	// You should not touch that part, it should be AS IT IS, all the formatting and spaces and stuff
 
 	// Output:
-	// [who s on first]
+	// [who on first]
 }
 
 /*
