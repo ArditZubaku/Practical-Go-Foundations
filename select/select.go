@@ -7,10 +7,13 @@ import (
 )
 
 func main() {
-	ch1, ch2, ch3 := make(chan int), make(chan int), make(chan int)
+	// ch1, ch2, ch3 := make(chan int), make(chan int), make(chan int)
+	// Fix for goroutine leak - buffered channel
+	ch1, ch2, ch3 := make(chan int, 1), make(chan int, 1), make(chan int, 1)
 
 	go func() {
 		time.Sleep(10 * time.Millisecond)
+		// Possible fix for goroutine leak: select with timeout
 		ch3 <- 3
 	}()
 
