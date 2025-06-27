@@ -1,14 +1,18 @@
 package main
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"net/http"
 	"net/url"
+	"time"
 )
 
 func main() {
-	fmt.Println(gitHubInfo("ArditZubaku"))
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	fmt.Println(gitHubInfo(ctx, "ArditZubaku"))
+	defer cancel()
 
 	// JSON: io.Reader -> Go => json.Decoder
 	// JSON: []byte -> Go => json.Unmarshal
@@ -16,10 +20,17 @@ func main() {
 	// Go: []byte -> JSON => json.Marshal
 }
 
-func gitHubInfo(login string) (string, int, error) {
+func gitHubInfo(ctx context.Context, login string) (string, int, error) {
 	// url := fmt.Sprintf("https://api.github.com/users/%s", login)
 	url := "https://api.github.com/users/" + url.PathEscape(login)
-	resp, err := http.Get(url)
+	// resp, err := http.Get(url)
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, url, nil)
+	if err != nil {
+		// log.Fatalf("ERROR: %s", err)
+		return "", 0, err
+	}
+
+	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
 		// log.Fatalf("ERROR: %s", err)
 		return "", 0, err
