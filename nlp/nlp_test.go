@@ -17,7 +17,7 @@ var tokenizeCases = []struct {
 	text   string
 	tokens []string
 }{
-	{text: "Who is on first?", tokens: []string{"who", "is", "on", "first"}},
+	{text: "Who's on first?", tokens: []string{"who", "on", "first"}},
 	// If the order is okay, we don't have to specify the fields
 	{"", nil},
 }
@@ -61,7 +61,7 @@ func TestTokenizeTable(t *testing.T) {
 
 func TestTokenize(t *testing.T) {
 	text := "What's on second?"
-	expected := []string{"what", "s", "on", "second"}
+	expected := []string{"what", "on", "second"}
 	// We are on the same pkg now, no need to import
 	tokens := Tokenize(text)
 	// if tokens != expected { // Can't compare slices with `==` in Go (only to nil)
