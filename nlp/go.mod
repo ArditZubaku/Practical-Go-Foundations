@@ -2,7 +2,10 @@ module github.com/ArditZubaku/nlp
 
 go 1.24.3
 
-require github.com/stretchr/testify v1.10.0
+require (
+	github.com/gorilla/mux v1.8.1
+	github.com/stretchr/testify v1.10.0
+)
 
 require (
 	github.com/BurntSushi/toml v1.5.0
