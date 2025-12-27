@@ -42,6 +42,7 @@ func main() {
 		ch <- "hi"
 	}()
 
+	// NOTE: Rule of thumb - always be ready to receive before sending
 	msg := <-ch // receive
 	fmt.Println(msg)
 
