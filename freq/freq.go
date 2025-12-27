@@ -5,8 +5,11 @@ import (
 	"fmt"
 	"io"
 	"log"
+	"maps"
 	"os"
 	"regexp"
+	"slices"
+	"sort"
 	"strings"
 )
 
@@ -17,7 +20,11 @@ func main() {
 	if err != nil {
 		log.Fatalf("ERROR: %s", err)
 	}
-	defer file.Close()
+	defer func() {
+		if err := file.Close(); err != nil {
+			log.Fatal("Failed to close the file: ", err)
+		}
+	}()
 
 	path := "C:\to\new\file.csv"
 	fmt.Println(path)
@@ -146,6 +153,38 @@ func wordFrequency(r io.Reader) (map[string]int, error) {
 	}
 
 	// fmt.Println("NUM LINES: ", lnum)
+	fmt.Println("TOP_N ->", topN(freqs, 5))
+	fmt.Println("TOP_N_v2 ->", topNv2(freqs, 5))
 
 	return freqs, nil
+}
+
+// topN returns the "n" most common words in freq.
+func topN(freq map[string]int, n int) []string {
+	vals := slices.Collect(maps.Values(freq))
+	sortedVals := slices.Sorted(slices.Values(vals))
+	slices.Reverse(sortedVals)
+	sortedVals = sortedVals[:n]
+
+	mostCommonWords := make([]string, 0, n)
+	for k, v := range freq {
+		if slices.Contains(sortedVals, v) {
+			mostCommonWords = append(mostCommonWords, k)
+		}
+	}
+
+	return mostCommonWords
+}
+
+// topN returns the "n" most common words in freq.
+func topNv2(freq map[string]int, n int) []string {
+	words := slices.Collect(maps.Keys(freq))
+	sort.Slice(words, func(i int, j int) bool {
+		wi, wj := words[i], words[j]
+		// Sort in reverse order
+		return freq[wi] > freq[wj]
+	})
+
+	n = min(n, len(words))
+	return words[:n]
 }
