@@ -8,3 +8,4 @@ tokens = ["what", "on", "second"]
 
 [[cases]]
 text = ""
+tokens = []

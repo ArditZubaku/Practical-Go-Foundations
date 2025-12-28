@@ -1,6 +1,8 @@
 package nlp
 
 import (
+	"fmt"
+	"os"
 	"strings"
 	"testing"
 
@@ -41,6 +43,29 @@ func loadTokenizeCases(t *testing.T) []testCase {
 	return testCases.Cases
 }
 
+func loadTokenizeCasesV2(t *testing.T) []testCase {
+	file, err := os.Open("testdata/tokenize_cases.toml")
+	require.NoError(t, err)
+	// t.Cleanup(func() {
+	// 	fmt.Println("This is run at the end of the test where it is called")
+	// 	require.NoError(t, file.Close())
+	// })
+	defer func() {
+		fmt.Println("This is run at the end of this function")
+		file.Close()
+	}()
+
+	var data struct {
+		Cases []testCase `toml:"cases"`
+	}
+
+	dec := toml.NewDecoder(file)
+	_, err = dec.Decode(&data)
+	require.NoError(t, err)
+
+	return data.Cases
+}
+
 func TestTokenizeTable(t *testing.T) {
 	for _, tc := range tokenizeCases {
 		// Pick a name for the test
@@ -55,6 +80,22 @@ func TestTokenizeTable(t *testing.T) {
 		// Pick a name for the test
 		t.Run(tc.Text, func(t *testing.T) {
 			tokens := Tokenize(tc.Text)
+			// NOTE: TOML doesn't have nil
+			if tokens == nil {
+				tokens = []string{}
+			}
+			require.Equal(t, tc.Tokens, tokens)
+		})
+	}
+
+	for _, tc := range loadTokenizeCasesV2(t) {
+		// Pick a name for the test
+		t.Run(tc.Text, func(t *testing.T) {
+			tokens := Tokenize(tc.Text)
+			// NOTE: TOML doesn't have nil
+			if tokens == nil {
+				tokens = []string{}
+			}
 			require.Equal(t, tc.Tokens, tokens)
 		})
 	}
